@@ -1,17 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#161616"
     >
 
     <title>Chaos Explorer</title>
 
     <meta
         name="description"
-        content="Professional Chaos Explorer Dashboard"
+        content="Professional Chaos Explorer Dashboard powered by ProjectDiscovery Chaos Dataset"
+    >
+
+    <link
+        rel="icon"
+        type="image/avif"
+        href="favicon.avif"
     >
 
     <link
@@ -32,27 +46,75 @@
 
     <link
         rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
         href="style.css"
     >
+
 </head>
 
 <body>
 
-<div class="appContainer">
+<header class="topHeader">
 
-    <aside class="sidebar">
+    <div class="headerLeft">
 
-        <div class="brandSection">
+        <div class="headerBrand">
 
-            <h1 class="brandTitle">
+            <h1 class="headerTitle">
                 Chaos Explorer
             </h1>
 
-            <div class="brandSubtitle">
+            <div class="headerSubtitle">
                 ProjectDiscovery Dataset
             </div>
 
         </div>
+
+    </div>
+
+    <div class="headerRight">
+
+        <a
+            href="https://github.com/Prashant64bit"
+            target="_blank"
+            rel="noopener"
+            title="GitHub"
+            class="headerIcon"
+        >
+            <i class="fab fa-github"></i>
+        </a>
+
+        <a
+            href="https://www.linkedin.com/in/prashant-cybersecurity/"
+            target="_blank"
+            rel="noopener"
+            title="LinkedIn"
+            class="headerIcon"
+        >
+            <i class="fab fa-linkedin"></i>
+        </a>
+
+        <a
+            href="https://prashantthakur.is-a.dev"
+            target="_blank"
+            rel="noopener"
+            title="Portfolio"
+            class="headerIcon"
+        >
+            <i class="fas fa-globe"></i>
+        </a>
+
+    </div>
+
+</header>
+
+<div class="appContainer">
+
+    <aside class="sidebar">
 
         <div class="sidebarSection">
 
@@ -64,6 +126,7 @@
                 id="searchInput"
                 type="text"
                 placeholder="Search program..."
+                autocomplete="off"
             >
 
         </div>
@@ -74,12 +137,12 @@
                 Platform
             </label>
 
-            <select
-                id="platformFilter"
-            >
+            <select id="platformFilter">
+
                 <option value="">
                     All Platforms
                 </option>
+
             </select>
 
         </div>
@@ -90,9 +153,8 @@
                 Bounty
             </label>
 
-            <select
-                id="bountyFilter"
-            >
+            <select id="bountyFilter">
+
                 <option value="">
                     All
                 </option>
@@ -104,6 +166,7 @@
                 <option value="false">
                     No Bounty
                 </option>
+
             </select>
 
         </div>
@@ -114,9 +177,8 @@
                 Subdomains Order
             </label>
 
-            <select
-                id="subdomainOrder"
-            >
+            <select id="subdomainOrder">
+
                 <option value="">
                     None
                 </option>
@@ -128,13 +190,12 @@
                 <option value="asc">
                     Lowest First
                 </option>
+
             </select>
 
         </div>
 
-        <button
-            id="resetButton"
-        >
+        <button id="resetButton">
             Reset Filters
         </button>
 
@@ -176,33 +237,16 @@
 
                 <thead>
 
-                <tr>
+                    <tr>
 
-                    <th>
-                        Name
-                    </th>
+                        <th>Name</th>
+                        <th>Platform</th>
+                        <th>Subdomains</th>
+                        <th>Bounty</th>
+                        <th>Updated</th>
+                        <th>Recon</th>
 
-                    <th>
-                        Platform
-                    </th>
-
-                    <th>
-                        Subdomains
-                    </th>
-
-                    <th>
-                        Bounty
-                    </th>
-
-                    <th>
-                        Updated
-                    </th>
-
-                    <th>
-                        Recon
-                    </th>
-
-                </tr>
+                    </tr>
 
                 </thead>
 
@@ -230,4 +274,5 @@
 <script src="app.js"></script>
 
 </body>
+
 </html>

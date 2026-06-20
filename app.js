@@ -1,102 +1,100 @@
-const sourceUrl =
-    "https://chaos-data.projectdiscovery.io/index.json";
+const dataUrl = "https://chaos-data.projectdiscovery.io/index.json";
 
-let allData = [];
+let allPrograms = [];
+let filteredPrograms = [];
 
-const searchInput =
-    document.getElementById("searchInput");
+const searchInput = document.getElementById("searchInput");
+const platformFilter = document.getElementById("platformFilter");
+const bountyFilter = document.getElementById("bountyFilter");
+const subdomainOrder = document.getElementById("subdomainOrder");
+const resetButton = document.getElementById("resetButton");
 
-const platformFilter =
-    document.getElementById("platformFilter");
+const tableBody = document.getElementById("tableBody");
+const totalPrograms = document.getElementById("totalPrograms");
+const totalSubdomains = document.getElementById("totalSubdomains");
 
-const bountyFilter =
-    document.getElementById("bountyFilter");
-
-const subdomainOrder =
-    document.getElementById("subdomainOrder");
-
-const tableBody =
-    document.getElementById("tableBody");
-
-const totalPrograms =
-    document.getElementById("totalPrograms");
-
-const totalSubdomains =
-    document.getElementById("totalSubdomains");
-
-const currentYear =
-    document.getElementById("currentYear");
-
-currentYear.textContent =
+document.getElementById("currentYear").textContent =
     new Date().getFullYear();
 
 async function loadData() {
 
-    const cachedData =
-        localStorage.getItem(
-            "chaosExplorerCache"
-        );
-
-    if (cachedData) {
-
-        allData =
-            JSON.parse(cachedData);
-
-        populatePlatforms();
-
-        renderTable();
-
-    }
-
     try {
 
-        const response =
-            await fetch(sourceUrl);
+        const cachedData =
+            localStorage.getItem("chaosExplorerData");
 
-        const rawData =
-            await response.json();
+        const cachedTime =
+            localStorage.getItem("chaosExplorerUpdated");
 
-        allData =
-            rawData.map(item => ({
+        if (
+            cachedData &&
+            cachedTime &&
+            Date.now() - Number(cachedTime) < 3600000
+        ) {
 
-                name:
-                    item.name || "-",
+            allPrograms = JSON.parse(cachedData);
 
-                platform:
-                    item.platform || "-",
+        } else {
 
-                subdomains:
-                    item.count || 0,
+            const response =
+                await fetch(dataUrl);
 
-                bounty:
-                    Boolean(item.bounty),
+            const rawData =
+                await response.json();
 
-                lastUpdated:
-                    item.last_updated || "",
+            allPrograms =
+                rawData.map(item => ({
 
-                programUrl:
-                    item.program_url || "",
+                    name:
+                        item.name || "",
 
-                zipUrl:
-                    item.URL || ""
+                    platform:
+                        item.platform || "",
 
-            }));
+                    bounty:
+                        item.bounty === true,
 
-        localStorage.setItem(
-            "chaosExplorerCache",
-            JSON.stringify(allData)
-        );
+                    subdomains:
+                        Number(item.count || 0),
+
+                    updated:
+                        item.last_updated || "",
+
+                    programUrl:
+                        item.program_url || "",
+
+                    zipUrl:
+                        item.URL || ""
+
+                }));
+
+            localStorage.setItem(
+                "chaosExplorerData",
+                JSON.stringify(allPrograms)
+            );
+
+            localStorage.setItem(
+                "chaosExplorerUpdated",
+                Date.now().toString()
+            );
+
+        }
 
         populatePlatforms();
 
-        renderTable();
+        applyFilters();
 
     } catch (error) {
 
-        console.error(
-            "Failed to load data:",
-            error
-        );
+        console.error(error);
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    Failed to load data
+                </td>
+            </tr>
+        `;
 
     }
 
@@ -104,40 +102,23 @@ async function loadData() {
 
 function populatePlatforms() {
 
-    while (
-        platformFilter.options.length > 1
-    ) {
-
-        platformFilter.remove(1);
-
-    }
-
     const platforms =
         [
             ...new Set(
-                allData
-                    .map(
-                        item =>
-                            item.platform
-                    )
-                    .filter(
-                        platform =>
-                            platform &&
-                            platform !== "-"
-                    )
+                allPrograms
+                    .map(item => item.platform)
+                    .filter(Boolean)
             )
         ]
         .sort();
 
-    for (
-        const platform
-        of platforms
-    ) {
+    platformFilter.innerHTML =
+        `<option value="">All Platforms</option>`;
+
+    platforms.forEach(platform => {
 
         const option =
-            document.createElement(
-                "option"
-            );
+            document.createElement("option");
 
         option.value =
             platform;
@@ -145,11 +126,90 @@ function populatePlatforms() {
         option.textContent =
             platform;
 
-        platformFilter.appendChild(
-            option
+        platformFilter.appendChild(option);
+
+    });
+
+}
+
+function applyFilters() {
+
+    const searchValue =
+        searchInput.value
+            .trim()
+            .toLowerCase();
+
+    filteredPrograms =
+        allPrograms.filter(item => {
+
+            const searchMatch =
+                item.name
+                    .toLowerCase()
+                    .includes(searchValue);
+
+            const platformMatch =
+                !platformFilter.value ||
+                item.platform ===
+                platformFilter.value;
+
+            const bountyMatch =
+                bountyFilter.value === "" ||
+                String(item.bounty) ===
+                bountyFilter.value;
+
+            return (
+                searchMatch &&
+                platformMatch &&
+                bountyMatch
+            );
+
+        });
+
+    if (
+        subdomainOrder.value === "desc"
+    ) {
+
+        filteredPrograms.sort(
+            (a, b) =>
+                b.subdomains -
+                a.subdomains
         );
 
     }
+
+    if (
+        subdomainOrder.value === "asc"
+    ) {
+
+        filteredPrograms.sort(
+            (a, b) =>
+                a.subdomains -
+                b.subdomains
+        );
+
+    }
+
+    updateStats();
+
+    renderTable();
+
+}
+
+function updateStats() {
+
+    totalPrograms.textContent =
+        filteredPrograms.length
+            .toLocaleString();
+
+    const total =
+        filteredPrograms.reduce(
+            (sum, item) =>
+                sum + item.subdomains,
+            0
+        );
+
+    totalSubdomains.textContent =
+        total.toLocaleString();
 
 }
 
@@ -161,237 +221,156 @@ function formatDate(dateString) {
 
     }
 
-    try {
+    const date =
+        new Date(dateString);
 
-        return new Date(
-            dateString
-        ).toLocaleString(
-            undefined,
-            {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
+    return date.toLocaleString(
+        undefined,
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
 
-    } catch {
+}
 
-        return "-";
+function escapeHtml(text) {
 
-    }
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        text;
+
+    return div.innerHTML;
 
 }
 
 function renderTable() {
 
-    let data =
-        [...allData];
-
-    const searchValue =
-        searchInput.value
-            .trim()
-            .toLowerCase();
-
-    if (searchValue) {
-
-        data =
-            data.filter(
-                item =>
-                    item.name
-                        .toLowerCase()
-                        .includes(
-                            searchValue
-                        )
-            );
-
-    }
-
     if (
-        platformFilter.value
+        !filteredPrograms.length
     ) {
 
-        data =
-            data.filter(
-                item =>
-                    item.platform ===
-                    platformFilter.value
-            );
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    No results found
+                </td>
+            </tr>
+        `;
+
+        return;
 
     }
-
-    if (
-        bountyFilter.value
-    ) {
-
-        data =
-            data.filter(
-                item =>
-                    String(
-                        item.bounty
-                    ) ===
-                    bountyFilter.value
-            );
-
-    }
-
-    if (
-        subdomainOrder.value ===
-        "asc"
-    ) {
-
-        data.sort(
-            (
-                a,
-                b
-            ) =>
-                a.subdomains -
-                b.subdomains
-        );
-
-    }
-
-    if (
-        subdomainOrder.value ===
-        "desc"
-    ) {
-
-        data.sort(
-            (
-                a,
-                b
-            ) =>
-                b.subdomains -
-                a.subdomains
-        );
-
-    }
-
-    totalPrograms.textContent =
-        data.length.toLocaleString();
-
-    totalSubdomains.textContent =
-        data
-            .reduce(
-                (
-                    total,
-                    item
-                ) =>
-                    total +
-                    item.subdomains,
-                0
-            )
-            .toLocaleString();
 
     tableBody.innerHTML =
-        data
-            .map(
-                item => `
-<tr>
+        filteredPrograms
+            .map(item => `
 
-<td>
-${
-    item.programUrl
-        ? `
-<a
-    href="${item.programUrl}"
-    target="_blank"
-    class="programLink"
-    title="Open Program"
->
-${item.name}
-<span class="linkIcon">↗</span>
-</a>
-`
-        : item.name
-}
-</td>
+                <tr>
 
-<td>
-${item.platform || "-"}
-</td>
+                    <td>
 
-<td>
-${item.subdomains.toLocaleString()}
-</td>
+                        ${
+                            item.programUrl
+                                ? `
+                                <a
+                                    href="${item.programUrl}"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="programLink"
+                                    title="Open Program"
+                                >
+                                    ${escapeHtml(item.name)}
+                                    <span class="linkIcon">
+                                        ↗
+                                    </span>
+                                </a>
+                            `
+                                : escapeHtml(item.name)
+                        }
 
-<td>
-${item.bounty ? "Yes" : "No"}
-</td>
+                    </td>
 
-<td>
-${formatDate(
-    item.lastUpdated
-)}
-</td>
+                    <td>
+                        ${item.platform || "-"}
+                    </td>
 
-<td>
-${
-    item.zipUrl
-        ? `
-<a
-    href="${item.zipUrl}"
-    target="_blank"
-    class="zipButton"
->
-Zip
-</a>
-`
-        : "-"
-}
-</td>
+                    <td>
+                        ${item.subdomains.toLocaleString()}
+                    </td>
 
-</tr>
-`
-            )
+                    <td>
+                        ${item.bounty ? "Yes" : "No"}
+                    </td>
+
+                    <td>
+                        ${formatDate(item.updated)}
+                    </td>
+
+                    <td>
+
+                        ${
+                            item.zipUrl
+                                ? `
+                                <a
+                                    href="${item.zipUrl}"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="zipButton"
+                                    title="Download ZIP"
+                                >
+                                    Zip
+                                </a>
+                            `
+                                : "-"
+                        }
+
+                    </td>
+
+                </tr>
+
+            `)
             .join("");
 
 }
 
 searchInput.addEventListener(
     "input",
-    renderTable
+    applyFilters
 );
 
 platformFilter.addEventListener(
     "change",
-    renderTable
+    applyFilters
 );
 
 bountyFilter.addEventListener(
     "change",
-    renderTable
+    applyFilters
 );
 
 subdomainOrder.addEventListener(
     "change",
-    renderTable
+    applyFilters
 );
 
-document
-    .getElementById(
-        "resetButton"
-    )
-    .addEventListener(
-        "click",
-        () => {
+resetButton.addEventListener(
+    "click",
+    () => {
 
-            searchInput.value =
-                "";
+        searchInput.value = "";
+        platformFilter.value = "";
+        bountyFilter.value = "";
+        subdomainOrder.value = "";
 
-            platformFilter.value =
-                "";
+        applyFilters();
 
-            bountyFilter.value =
-                "";
-
-            subdomainOrder.value =
-                "";
-
-            renderTable();
-
-        }
-    );
+    }
+);
 
 loadData();
