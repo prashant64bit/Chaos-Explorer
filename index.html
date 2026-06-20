@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Chaos Explorer</title>
+
+    <meta
+        name="description"
+        content="Professional Chaos Explorer Dashboard"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+<div class="appContainer">
+
+    <aside class="sidebar">
+
+        <div class="brandSection">
+
+            <h1 class="brandTitle">
+                Chaos Explorer
+            </h1>
+
+            <div class="brandSubtitle">
+                ProjectDiscovery Dataset
+            </div>
+
+        </div>
+
+        <div class="sidebarSection">
+
+            <label for="searchInput">
+                Search
+            </label>
+
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="Search program..."
+            >
+
+        </div>
+
+        <div class="sidebarSection">
+
+            <label for="platformFilter">
+                Platform
+            </label>
+
+            <select
+                id="platformFilter"
+            >
+                <option value="">
+                    All Platforms
+                </option>
+            </select>
+
+        </div>
+
+        <div class="sidebarSection">
+
+            <label for="bountyFilter">
+                Bounty
+            </label>
+
+            <select
+                id="bountyFilter"
+            >
+                <option value="">
+                    All
+                </option>
+
+                <option value="true">
+                    Bounty
+                </option>
+
+                <option value="false">
+                    No Bounty
+                </option>
+            </select>
+
+        </div>
+
+        <div class="sidebarSection">
+
+            <label for="subdomainOrder">
+                Subdomains Order
+            </label>
+
+            <select
+                id="subdomainOrder"
+            >
+                <option value="">
+                    None
+                </option>
+
+                <option value="desc">
+                    Highest First
+                </option>
+
+                <option value="asc">
+                    Lowest First
+                </option>
+            </select>
+
+        </div>
+
+        <button
+            id="resetButton"
+        >
+            Reset Filters
+        </button>
+
+    </aside>
+
+    <main class="mainContent">
+
+        <section class="statsGrid">
+
+            <div class="statCard">
+
+                <div>
+                    Programs
+                </div>
+
+                <div id="totalPrograms">
+                    0
+                </div>
+
+            </div>
+
+            <div class="statCard">
+
+                <div>
+                    Subdomains
+                </div>
+
+                <div id="totalSubdomains">
+                    0
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="tableWrapper">
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>
+                        Name
+                    </th>
+
+                    <th>
+                        Platform
+                    </th>
+
+                    <th>
+                        Subdomains
+                    </th>
+
+                    <th>
+                        Bounty
+                    </th>
+
+                    <th>
+                        Updated
+                    </th>
+
+                    <th>
+                        Recon
+                    </th>
+
+                </tr>
+
+                </thead>
+
+                <tbody id="tableBody">
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+</div>
+
+<footer>
+
+    ©
+    <span id="currentYear"></span>
+
+    @Prashant64bit • Built with passion
+
+</footer>
+
+<script src="app.js"></script>
+
+</body>
+</html>
