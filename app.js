@@ -6,6 +6,7 @@ let filteredPrograms = [];
 const searchInput = document.getElementById("searchInput");
 const platformFilter = document.getElementById("platformFilter");
 const bountyFilter = document.getElementById("bountyFilter");
+const swagFilter = document.getElementById("swagFilter");
 const subdomainOrder = document.getElementById("subdomainOrder");
 const resetButton = document.getElementById("resetButton");
 
@@ -32,7 +33,8 @@ async function loadData() {
             Date.now() - Number(cachedTime) < 3600000
         ) {
 
-            allPrograms = JSON.parse(cachedData);
+            allPrograms =
+                JSON.parse(cachedData);
 
         } else {
 
@@ -53,6 +55,9 @@ async function loadData() {
 
                     bounty:
                         item.bounty === true,
+
+                    swag:
+                        item.swag === true,
 
                     subdomains:
                         Number(item.count || 0),
@@ -90,7 +95,7 @@ async function loadData() {
 
         tableBody.innerHTML = `
             <tr>
-                <td colspan="6">
+                <td colspan="7">
                     Failed to load data
                 </td>
             </tr>
@@ -112,8 +117,15 @@ function populatePlatforms() {
         ]
         .sort();
 
-    platformFilter.innerHTML =
-        `<option value="">All Platforms</option>`;
+    platformFilter.innerHTML = `
+        <option value="">
+            All Platforms
+        </option>
+
+        <option value="__none__">
+            No Platform
+        </option>
+    `;
 
     platforms.forEach(platform => {
 
@@ -148,19 +160,27 @@ function applyFilters() {
                     .includes(searchValue);
 
             const platformMatch =
-                !platformFilter.value ||
-                item.platform ===
-                platformFilter.value;
+                platformFilter.value === ""
+                    ? true
+                    : platformFilter.value === "__none__"
+                        ? !item.platform
+                        : item.platform === platformFilter.value;
 
             const bountyMatch =
                 bountyFilter.value === "" ||
                 String(item.bounty) ===
                 bountyFilter.value;
 
+            const swagMatch =
+                swagFilter.value === "" ||
+                String(item.swag) ===
+                swagFilter.value;
+
             return (
                 searchMatch &&
                 platformMatch &&
-                bountyMatch
+                bountyMatch &&
+                swagMatch
             );
 
         });
@@ -257,7 +277,7 @@ function renderTable() {
 
         tableBody.innerHTML = `
             <tr>
-                <td colspan="6">
+                <td colspan="7">
                     No results found
                 </td>
             </tr>
@@ -309,6 +329,10 @@ function renderTable() {
                     </td>
 
                     <td>
+                        ${item.swag ? "Yes" : "No"}
+                    </td>
+
+                    <td>
                         ${formatDate(item.updated)}
                     </td>
 
@@ -354,6 +378,11 @@ bountyFilter.addEventListener(
     applyFilters
 );
 
+swagFilter.addEventListener(
+    "change",
+    applyFilters
+);
+
 subdomainOrder.addEventListener(
     "change",
     applyFilters
@@ -366,6 +395,7 @@ resetButton.addEventListener(
         searchInput.value = "";
         platformFilter.value = "";
         bountyFilter.value = "";
+        swagFilter.value = "";
         subdomainOrder.value = "";
 
         applyFilters();

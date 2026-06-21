@@ -19,7 +19,7 @@
 
     <meta
         name="description"
-        content="Professional Chaos Explorer Dashboard powered by ProjectDiscovery Chaos Dataset"
+        content="Enhanced ProjectDiscovery Chaos Explorer"
     >
 
     <link
@@ -143,6 +143,10 @@
                     All Platforms
                 </option>
 
+                <option value="__none__">
+                    No Platform
+                </option>
+
             </select>
 
         </div>
@@ -165,6 +169,30 @@
 
                 <option value="false">
                     No Bounty
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="sidebarSection">
+
+            <label for="swagFilter">
+                Swag
+            </label>
+
+            <select id="swagFilter">
+
+                <option value="">
+                    All
+                </option>
+
+                <option value="true">
+                    Swag
+                </option>
+
+                <option value="false">
+                    No Swag
                 </option>
 
             </select>
@@ -243,8 +271,9 @@
                         <th>Platform</th>
                         <th>Subdomains</th>
                         <th>Bounty</th>
+                        <th>Swag</th>
                         <th>Updated</th>
-                        <th>Recon</th>
+                        <th>Zip</th>
 
                     </tr>
 
